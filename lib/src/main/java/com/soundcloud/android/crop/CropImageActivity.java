@@ -76,7 +76,6 @@ public class CropImageActivity extends MonitoredActivity {
 
     private void initViews() {
         imageView = (CropImageView) findViewById(R.id.crop_image);
-        imageView.context = this;
         imageView.setRecycler(new ImageViewTouchBase.Recycler() {
             @Override
             public void recycle(Bitmap b) {

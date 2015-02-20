@@ -12,7 +12,6 @@ public class CropImageView extends ImageViewTouchBase {
 
     ArrayList<HighlightView> highlightViews = new ArrayList<HighlightView>();
     HighlightView motionHighlightView;
-    Context context;
 
     private float lastX;
     private float lastY;
@@ -86,7 +85,7 @@ public class CropImageView extends ImageViewTouchBase {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        CropImageActivity cropImageActivity = (CropImageActivity) context;
+        CropImageActivity cropImageActivity = (CropImageActivity) getContext();
         if (cropImageActivity.isSaving()) {
             return false;
         }
