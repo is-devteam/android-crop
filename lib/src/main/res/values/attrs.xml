@@ -3,12 +3,17 @@
     <attr name="cropImageStyle" format="reference" />
 
     <declare-styleable name="CropImageView">
-        <attr name="highlightColor" format="reference|color" />
-        <attr name="showThirds" format="boolean" />
-        <attr name="showHandles">
+        <attr name="crop_highlight_color" format="reference|color" />
+        <attr name="crop_outside_color" format="reference|color" />
+        <attr name="crop_show_thirds" format="boolean" />
+        <attr name="crop_show_handles">
           <enum name="changing" value="0" />
           <enum name="always" value="1" />
           <enum name="never" value="2" />
+        </attr>
+        <attr name="crop_shape">
+          <enum name="square" value="0"/>
+          <enum name="circle" value="1"/>
         </attr>
     </declare-styleable>
 

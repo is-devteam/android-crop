@@ -19,14 +19,7 @@ package com.soundcloud.android.crop;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.graphics.Region;
+import android.graphics.*;
 import android.os.Build;
 import android.util.TypedValue;
 import android.view.View;
@@ -49,11 +42,13 @@ class HighlightView {
     public static final int MOVE             = (1 << 5);
 
     private static final int DEFAULT_HIGHLIGHT_COLOR = 0xFF33B5E5;
+    private static final int DEFAULT_OUTSIDE_COLOR = 0x88252525;
     private static final float HANDLE_RADIUS_DP = 12f;
     private static final float OUTLINE_DP = 2f;
 
     enum ModifyMode { None, Move, Grow }
     enum HandleMode { Changing, Always, Never }
+    enum Shape { Square, Circle }
 
     RectF cropRect; // Image space
     Rect drawRect; // Screen space
@@ -67,9 +62,11 @@ class HighlightView {
     private View viewContext; // View displaying image
     private boolean showThirds;
     private int highlightColor;
+    private int outsideColor;
 
     private ModifyMode modifyMode = ModifyMode.None;
     private HandleMode handleMode = HandleMode.Changing;
+    private Shape shape = Shape.Square;
     private boolean maintainAspectRatio;
     private float initialAspectRatio;
     private float handleRadius;
@@ -86,10 +83,11 @@ class HighlightView {
         context.getTheme().resolveAttribute(R.attr.cropImageStyle, outValue, true);
         TypedArray attributes = context.obtainStyledAttributes(outValue.resourceId, R.styleable.CropImageView);
         try {
-            showThirds = attributes.getBoolean(R.styleable.CropImageView_showThirds, false);
-            highlightColor = attributes.getColor(R.styleable.CropImageView_highlightColor,
-                    DEFAULT_HIGHLIGHT_COLOR);
-            handleMode = HandleMode.values()[attributes.getInt(R.styleable.CropImageView_showHandles, 0)];
+            showThirds = attributes.getBoolean(R.styleable.CropImageView_crop_show_thirds, false);
+            highlightColor = attributes.getColor(R.styleable.CropImageView_crop_highlight_color, DEFAULT_HIGHLIGHT_COLOR);
+            outsideColor = attributes.getColor(R.styleable.CropImageView_crop_outside_color, DEFAULT_OUTSIDE_COLOR);
+            handleMode = HandleMode.values()[attributes.getInt(R.styleable.CropImageView_crop_show_handles, 0)];
+            shape = Shape.values()[attributes.getInt(R.styleable.CropImageView_crop_shape, 0)];
         } finally {
             attributes.recycle();
         }
@@ -105,7 +103,7 @@ class HighlightView {
         initialAspectRatio = this.cropRect.width() / this.cropRect.height();
         drawRect = computeLayout();
 
-        outsidePaint.setARGB(125, 50, 50, 50);
+        outsidePaint.setColor(outsideColor);
         outlinePaint.setStyle(Paint.Style.STROKE);
         outlinePaint.setAntiAlias(true);
         outlineWidth = dpToPx(OUTLINE_DP);
@@ -133,7 +131,14 @@ class HighlightView {
             Rect viewDrawingRect = new Rect();
             viewContext.getDrawingRect(viewDrawingRect);
 
-            path.addRect(new RectF(drawRect), Path.Direction.CW);
+            if(shape == Shape.Square) {
+                path.addRect(new RectF(drawRect), Path.Direction.CW);
+            }
+            else {
+                float radius = Math.min(drawRect.width(), drawRect.height()) / 2;
+                path.addCircle((float) (drawRect.left + drawRect.right) / 2, (float) (drawRect.top + drawRect.bottom) / 2, radius, Path.Direction.CW);
+            }
+
             outlinePaint.setColor(highlightColor);
 
             if (isClipPathSupported()) {
