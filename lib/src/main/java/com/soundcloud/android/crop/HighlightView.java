@@ -136,7 +136,7 @@ class HighlightView {
             path.addRect(new RectF(drawRect), Path.Direction.CW);
             outlinePaint.setColor(highlightColor);
 
-            if (isClipPathSupported(canvas)) {
+            if (isClipPathSupported()) {
                 canvas.clipPath(path, Region.Op.DIFFERENCE);
                 canvas.drawRect(viewDrawingRect, outsidePaint);
             } else {
@@ -170,18 +170,10 @@ class HighlightView {
     /*
      * Clip path is broken, unreliable or not supported on:
      * - JellyBean MR1
-     * - ICS & ICS MR1 with hardware acceleration turned on
      */
     @SuppressLint("NewApi")
-    private boolean isClipPathSupported(Canvas canvas) {
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            return false;
-        } else if ((Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-            || Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-            return true;
-        } else {
-            return !canvas.isHardwareAccelerated();
-        }
+    private boolean isClipPathSupported() {
+      return Build.VERSION.SDK_INT != Build.VERSION_CODES.JELLY_BEAN_MR1;
     }
 
     private void drawHandles(Canvas canvas) {

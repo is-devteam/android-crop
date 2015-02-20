@@ -27,7 +27,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.opengl.GLES10;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -43,8 +42,6 @@ import java.util.concurrent.CountDownLatch;
  * Modified from original in AOSP.
  */
 public class CropImageActivity extends MonitoredActivity {
-
-    private static final boolean IN_MEMORY_CROP = Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD_MR1;
     private static final int SIZE_DEFAULT = 2048;
     private static final int SIZE_LIMIT = 4096;
 
@@ -283,27 +280,18 @@ public class CropImageActivity extends MonitoredActivity {
             }
         }
 
-        if (IN_MEMORY_CROP && rotateBitmap != null) {
-            croppedImage = inMemoryCrop(rotateBitmap, r, outWidth, outHeight);
-            if (croppedImage != null) {
-                imageView.setImageBitmapResetBase(croppedImage, true);
-                imageView.center(true, true);
-                imageView.highlightViews.clear();
-            }
-        } else {
-            try {
-                croppedImage = decodeRegionCrop(r, outWidth, outHeight);
-            } catch (IllegalArgumentException e) {
-                setResultException(e);
-                finish();
-                return;
-            }
+        try {
+          croppedImage = decodeRegionCrop(r, outWidth, outHeight);
+        } catch (IllegalArgumentException e) {
+          setResultException(e);
+          finish();
+          return;
+        }
 
-            if (croppedImage != null) {
-                imageView.setImageRotateBitmapResetBase(new RotateBitmap(croppedImage, exifRotation), true);
-                imageView.center(true, true);
-                imageView.highlightViews.clear();
-            }
+        if (croppedImage != null) {
+          imageView.setImageRotateBitmapResetBase(new RotateBitmap(croppedImage, exifRotation), true);
+          imageView.center(true, true);
+          imageView.highlightViews.clear();
         }
         saveImage(croppedImage);
     }
@@ -374,33 +362,6 @@ public class CropImageActivity extends MonitoredActivity {
         return croppedImage;
     }
 
-    private Bitmap inMemoryCrop(RotateBitmap rotateBitmap, Rect rect, int outWidth, int outHeight) {
-        // In-memory crop means potential OOM errors,
-        // but we have no choice as we can't selectively decode a bitmap with this API level
-        System.gc();
-
-        Bitmap croppedImage = null;
-        try {
-            croppedImage = Bitmap.createBitmap(outWidth, outHeight, Bitmap.Config.RGB_565);
-
-            Canvas canvas = new Canvas(croppedImage);
-            RectF dstRect = new RectF(0, 0, rect.width(), rect.height());
-
-            Matrix m = new Matrix();
-            m.setRectToRect(new RectF(rect), dstRect, Matrix.ScaleToFit.FILL);
-            m.preConcat(rotateBitmap.getRotateMatrix());
-            canvas.drawBitmap(rotateBitmap.getBitmap(), m, null);
-        } catch (OutOfMemoryError e) {
-            Log.e("OOM cropping image: " + e.getMessage(), e);
-            setResultException(e);
-            System.gc();
-        }
-
-        // Release Bitmap memory as soon as possible
-        clearImageView();
-        return croppedImage;
-    }
-
     private void clearImageView() {
         imageView.clear();
         if (rotateBitmap != null) {
@@ -422,14 +383,6 @@ public class CropImageActivity extends MonitoredActivity {
                 Log.e("Cannot open file: " + saveUri, e);
             } finally {
                 CropUtil.closeSilently(outputStream);
-            }
-
-            if (!IN_MEMORY_CROP) {
-                // In-memory crop negates the rotation
-                CropUtil.copyExifRotation(
-                        CropUtil.getFromMediaUri(this, getContentResolver(), sourceUri),
-                        CropUtil.getFromMediaUri(this, getContentResolver(), saveUri)
-                );
             }
 
             setResultUri(saveUri);
