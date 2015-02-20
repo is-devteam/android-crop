@@ -14,9 +14,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * A utility class that helps crop images. Make sure to call {@link Cropper#release} when you are done.
+ * A utility class that helps crop images. Make sure to call {@link CropController#release} when you are done.
  */
-public class Cropper {
+public class CropController {
     private static final int FULL_QUALITY = 100;
 
     private static final int SIZE_DEFAULT = 2048;
@@ -34,9 +34,9 @@ public class Cropper {
 
     private boolean error = false;
 
-    private Cropper() {}
+    private CropController() {}
 
-    private Cropper(Builder builder) {
+    private CropController(Builder builder) {
         this.builder = builder;
 
         setup();
@@ -81,7 +81,7 @@ public class Cropper {
     }
 
     /**
-     * This should be called immediately after this {@link Cropper} is instantiated.
+     * This should be called immediately after this {@link CropController} is instantiated.
      *
      * @return {@code false} if there was some error (do not use this object if that is the case)
      */
@@ -126,7 +126,7 @@ public class Cropper {
      */
     public boolean save() {
         if(Looper.myLooper() == Looper.getMainLooper()) {
-            throw new IllegalStateException("You can't call Cropper.save() on the main thread");
+            throw new IllegalStateException("You can't call CropController.save() on the main thread");
         }
 
         if (error || cropView == null || saving.getAndSet(true)) {
@@ -510,7 +510,7 @@ public class Cropper {
     }
 
     /**
-     * Provide {@link Cropper.Builder} with an implementation of {@code OnCropFinishedListener} to get notified when
+     * Provide {@link CropController.Builder} with an implementation of {@code OnCropFinishedListener} to get notified when
      * the crop is finished (successfully or not)
      */
     public interface OnCropFinishedListener {
@@ -519,8 +519,8 @@ public class Cropper {
     }
 
     /**
-     * Provide {@link Cropper.Builder} with an implementation of {@code OnErrorListener} to listen for errors
-     * during the lifetime of the {@link Cropper}
+     * Provide {@link CropController.Builder} with an implementation of {@code OnErrorListener} to listen for errors
+     * during the lifetime of the {@link CropController}
      */
     public interface OnErrorListener {
         public void onError(Throwable e);
@@ -659,12 +659,12 @@ public class Cropper {
         }
 
         /**
-         * Build the {@code Cropper}!
+         * Build the {@link CropController}
          *
-         * @return the {@link Cropper}
+         * @return the {@code CropController}
          */
-        public Cropper build() {
-            return new Cropper(this);
+        public CropController build() {
+            return new CropController(this);
         }
 
         private void release() {

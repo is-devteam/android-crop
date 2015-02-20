@@ -10,8 +10,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import com.isapp.android.crop.CropController;
 import com.isapp.android.crop.CropImageView;
-import com.isapp.android.crop.Cropper;
 
 import java.io.File;
 
@@ -21,7 +21,7 @@ public class MainActivity extends Activity {
     private CropImageView cropperView;
     private ImageView resultView;
 
-    private Cropper cropper;
+    private CropController cropController;
 
     private Menu menu;
 
@@ -52,11 +52,11 @@ public class MainActivity extends Activity {
             return true;
         }
         else if(item.getItemId() == R.id.action_crop) {
-            if (cropper != null) {
+            if (cropController != null) {
                 new AsyncTask<Void, Void, Void>() {
                     @Override
                     protected Void doInBackground(Void... params) {
-                        cropper.save();
+                        cropController.save();
                         return null;
                     }
                 }.execute();
@@ -70,15 +70,15 @@ public class MainActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         if (requestCode == SELECT_PHOTO_REQUEST_CODE && resultCode == RESULT_OK) {
             final File outputFile = new File(getExternalFilesDir(null), "output");
-            if(cropper != null) {
-                cropper.release();
+            if(cropController != null) {
+                cropController.release();
             }
             else {
                 menu.findItem(R.id.action_crop).setVisible(true);
             }
-            cropper = new Cropper.Builder(cropperView, result.getData(), Uri.parse(outputFile.toURI().toString()))
+            cropController = new CropController.Builder(cropperView, result.getData(), Uri.parse(outputFile.toURI().toString()))
                 .asSquare()
-                .withCropFinishedListener(new Cropper.OnCropFinishedListener() {
+                .withCropFinishedListener(new CropController.OnCropFinishedListener() {
                     @Override
                     public void onCropFinished(Uri output) {
                         cropperView.setVisibility(View.GONE);
@@ -91,7 +91,7 @@ public class MainActivity extends Activity {
                         Log.e("Cropper", "Cropping failed");
                     }
                 })
-                .withErrorListener(new Cropper.OnErrorListener() {
+                .withErrorListener(new CropController.OnErrorListener() {
                     @Override
                     public void onError(Throwable e) {
                         Log.e("Cropper", "There was an error cropping", e);
@@ -103,7 +103,7 @@ public class MainActivity extends Activity {
                     }
                 })
                 .build();
-            cropper.start();
+            cropController.start();
         }
     }
 
@@ -111,9 +111,9 @@ public class MainActivity extends Activity {
     public void onStop() {
         super.onStop();
 
-        if(cropper != null) {
-            cropper.release();
-            cropper = null;
+        if(cropController != null) {
+            cropController.release();
+            cropController = null;
         }
     }
 }
