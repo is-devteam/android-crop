@@ -28,12 +28,7 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 
 /*
  * Modified from original in AOSP.
@@ -69,19 +64,6 @@ class CropUtil {
             }
         } catch (IOException e) {
             return 0;
-        }
-    }
-
-    public static boolean copyExifRotation(File sourceFile, File destFile) {
-        if (sourceFile == null || destFile == null) return false;
-        try {
-            ExifInterface exifSource = new ExifInterface(sourceFile.getAbsolutePath());
-            ExifInterface exifDest = new ExifInterface(destFile.getAbsolutePath());
-            exifDest.setAttribute(ExifInterface.TAG_ORIENTATION, exifSource.getAttribute(ExifInterface.TAG_ORIENTATION));
-            exifDest.saveAttributes();
-            return true;
-        } catch (IOException e) {
-            return false;
         }
     }
 
