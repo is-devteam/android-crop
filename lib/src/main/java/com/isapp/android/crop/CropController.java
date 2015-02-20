@@ -512,18 +512,54 @@ public class CropController {
     /**
      * Provide {@link CropController.Builder} with an implementation of {@code OnCropFinishedListener} to get notified when
      * the crop is finished (successfully or not)
+     *
+     * <br/><br/><b>All of the callbacks will occur on the main thread</b>
      */
     public interface OnCropFinishedListener {
+      /**
+       * <b>This will always be called on the main thread</b>
+       *
+       * <br/><br/>Called when the image has been successfully cropped and saved to {@code output}
+       *
+       * @param output {@link android.net.Uri} where the cropped image is saved
+       */
         public void onCropFinished(Uri output);
+
+      /**
+       * <b>This will always be called on the main thread</b>
+       *
+       * Called if the image could not be cropped, or could not be saved
+       */
         public void onCropFailed();
     }
 
     /**
      * Provide {@link CropController.Builder} with an implementation of {@code OnErrorListener} to listen for errors
-     * during the lifetime of the {@link CropController}
+     * during the lifetime of the {@link CropController}.
+     *
+     * <br/><br/><b>All of the callbacks will occur on the main thread</b>
      */
     public interface OnErrorListener {
+      /**
+       * <b>This will always be called on the main thread</b>
+       *
+       * <br/><br/>Called when an error has occurred during the process of cropping an image.
+       * {@link OnCropFinishedListener#onCropFailed()} may be called when this occurs.
+       *
+       * @param e Throwable that was caught
+       */
         public void onError(Throwable e);
+
+      /**
+       * <b>This will always be called on the main thread</b>
+       *
+       * <br/><br/>Called when a fatal error has occurred during the process of cropping an image. The cropping process should
+       * be stopped if this happens. {@link OnCropFinishedListener#onCropFailed()} may be called when this occurs.
+       *
+       * <br/><br/>This will get called on the main thread.
+       *
+       * @param e Throwable that was caught
+       */
         public void onFatalError(Throwable e);
     }
 
