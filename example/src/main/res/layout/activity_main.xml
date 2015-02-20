@@ -2,13 +2,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.soundcloud.android.crop.example.MainActivity">
+    tools:context="com.isapp.android.crop.example.MainActivity">
+
+    <com.isapp.android.crop.CropImageView
+        android:id="@+id/cropper"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000"/>
 
     <ImageView
         android:id="@+id/result_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerInside"
-        android:background="@drawable/texture" />
+        android:visibility="gone"
+        android:background="#000"/>
 
 </FrameLayout>
