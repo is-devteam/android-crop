@@ -1,5 +1,6 @@
 <resources>
 
-    <color name="highlight">#f3f3f3</color>
+    <color name="highlight">#ff3c3349</color>
+    <color name="outside">#77777777</color>
 
 </resources>

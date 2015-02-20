@@ -5,9 +5,10 @@
     </style>
 
     <style name="Widget.CropImageView" parent="android:Widget">
-        <item name="showThirds">true</item>
-        <item name="showHandles">always</item>
-        <item name="highlightColor">@color/highlight</item>
+        <item name="crop_show_thirds">true</item>
+        <item name="crop_show_handles">always</item>
+        <item name="crop_highlight_color">@color/highlight</item>
+        <item name="crop_outside_color">@color/outside</item>
     </style>
 
 </resources>
