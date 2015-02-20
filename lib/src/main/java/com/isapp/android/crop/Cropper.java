@@ -578,16 +578,6 @@ public class Cropper {
         }
 
         /**
-         * Set output URI where the cropped image will be saved
-         *
-         * @param output Output image URI
-         */
-        public Builder output(Uri output) {
-            this.output = output;
-            return this;
-        }
-
-        /**
          * Sets the type of compression the output will be saved as.
          * The output will be saved at full quality
          *
