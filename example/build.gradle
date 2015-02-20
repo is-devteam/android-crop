@@ -1,7 +1,5 @@
 apply plugin: 'com.android.application'
 
-archivesBaseName = 'android-crop-example'
-
 android {
     compileSdkVersion 21
     buildToolsVersion '21.1.2'
@@ -9,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 21
-        versionCode Integer.parseInt(project.VERSION_CODE)
-        versionName project.VERSION
+        versionCode 1
+        versionName "1.0"
     }
 }
 
