@@ -17,12 +17,8 @@
 package com.isapp.android.crop;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.*;
 import android.os.Build;
-import android.util.TypedValue;
-import android.view.View;
 
 /*
  * Modified from version in AOSP.
@@ -41,8 +37,6 @@ class HighlightView {
     public static final int GROW_BOTTOM_EDGE = (1 << 4);
     public static final int MOVE             = (1 << 5);
 
-    private static final int DEFAULT_HIGHLIGHT_COLOR = 0xFF33B5E5;
-    private static final int DEFAULT_OUTSIDE_COLOR = 0x88252525;
     private static final float HANDLE_RADIUS_DP = 12f;
     private static final float OUTLINE_DP = 2f;
 
@@ -59,7 +53,8 @@ class HighlightView {
     private final Paint outlinePaint = new Paint();
     private final Paint handlePaint = new Paint();
 
-    private View viewContext; // View displaying image
+    private CropImageView containerImageView; // View displaying image
+
     private boolean showThirds;
     private int highlightColor;
     private int outsideColor;
@@ -73,24 +68,15 @@ class HighlightView {
     private float outlineWidth;
     private boolean isFocused;
 
-    public HighlightView(View context) {
-        viewContext = context;
-        initStyles(context.getContext());
-    }
+    public HighlightView(CropImageView containerImageView) {
+        this.containerImageView = containerImageView;
 
-    private void initStyles(Context context) {
-        TypedValue outValue = new TypedValue();
-        context.getTheme().resolveAttribute(R.attr.cropImageStyle, outValue, true);
-        TypedArray attributes = context.obtainStyledAttributes(outValue.resourceId, R.styleable.CropImageView);
-        try {
-            showThirds = attributes.getBoolean(R.styleable.CropImageView_crop_show_thirds, false);
-            highlightColor = attributes.getColor(R.styleable.CropImageView_crop_highlight_color, DEFAULT_HIGHLIGHT_COLOR);
-            outsideColor = attributes.getColor(R.styleable.CropImageView_crop_outside_color, DEFAULT_OUTSIDE_COLOR);
-            handleMode = HandleMode.values()[attributes.getInt(R.styleable.CropImageView_crop_show_handles, 0)];
-            shape = Shape.values()[attributes.getInt(R.styleable.CropImageView_crop_shape, 0)];
-        } finally {
-            attributes.recycle();
-        }
+        this.showThirds = containerImageView.shouldShowThirds();
+        this.highlightColor = containerImageView.getHighlightColor();
+        this.outsideColor = containerImageView.getOutsideColor();
+
+        this.handleMode = containerImageView.getHandleMode();
+        this.shape = containerImageView.getShape();
     }
 
     public void setup(Matrix m, Rect imageRect, RectF cropRect, boolean maintainAspectRatio) {
@@ -117,7 +103,7 @@ class HighlightView {
     }
 
     private float dpToPx(float dp) {
-        return dp * viewContext.getResources().getDisplayMetrics().density;
+        return dp * containerImageView.getResources().getDisplayMetrics().density;
     }
 
     protected void draw(Canvas canvas) {
@@ -129,7 +115,7 @@ class HighlightView {
             canvas.drawRect(drawRect, outlinePaint);
         } else {
             Rect viewDrawingRect = new Rect();
-            viewContext.getDrawingRect(viewDrawingRect);
+            containerImageView.getDrawingRect(viewDrawingRect);
 
             if(shape == Shape.Square) {
                 path.addRect(new RectF(drawRect), Path.Direction.CW);
@@ -209,7 +195,7 @@ class HighlightView {
     public void setMode(ModifyMode mode) {
         if (mode != modifyMode) {
             modifyMode = mode;
-            viewContext.invalidate();
+            containerImageView.invalidate();
         }
     }
 
@@ -290,7 +276,7 @@ class HighlightView {
         drawRect = computeLayout();
         invalRect.union(drawRect);
         invalRect.inset(-(int) handleRadius, -(int) handleRadius);
-        viewContext.invalidate(invalRect);
+        containerImageView.invalidate(invalRect);
     }
 
     // Grows the cropping rectangle by (dx, dy) in image space.
@@ -348,7 +334,7 @@ class HighlightView {
 
         cropRect.set(r);
         drawRect = computeLayout();
-        viewContext.invalidate();
+        containerImageView.invalidate();
     }
 
     // Returns the cropping rectangle in image space with specified scale

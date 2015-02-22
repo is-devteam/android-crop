@@ -1,6 +1,7 @@
 package com.isapp.android.crop;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.util.AttributeSet;
@@ -10,8 +11,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CropImageView extends ImageViewTouchBase {
+    private static final int DEFAULT_HIGHLIGHT_COLOR = 0xFF33B5E5;
+    private static final int DEFAULT_OUTSIDE_COLOR = 0x88252525;
+
     private ArrayList<HighlightView> highlightViews = new ArrayList<>();
     private HighlightView motionHighlightView;
+
+    private boolean showThirds = false;
+    private int highlightColor = 0xFF33B5E5;
+    private int outsideColor = 0x88252525;
+
+    private HighlightView.HandleMode handleMode = HighlightView.HandleMode.Changing;
+    private HighlightView.Shape shape = HighlightView.Shape.Square;
 
     private float lastX;
     private float lastY;
@@ -22,16 +33,36 @@ public class CropImageView extends ImageViewTouchBase {
     @SuppressWarnings("UnusedDeclaration")
     public CropImageView(Context context) {
         super(context);
+
+        init(null);
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public CropImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        init(attrs);
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public CropImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+
+        init(attrs);
+    }
+
+    private void init(AttributeSet attrs) {
+        if (attrs != null) {
+            TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.CropImageView);
+
+            showThirds = a.getBoolean(R.styleable.CropImageView_crop_show_thirds, false);
+            highlightColor = a.getColor(R.styleable.CropImageView_crop_highlight_color, DEFAULT_HIGHLIGHT_COLOR);
+            outsideColor = a.getColor(R.styleable.CropImageView_crop_outside_color, DEFAULT_OUTSIDE_COLOR);
+            handleMode = HighlightView.HandleMode.values()[a.getInt(R.styleable.CropImageView_crop_show_handles, 0)];
+            shape = HighlightView.Shape.values()[a.getInt(R.styleable.CropImageView_crop_shape, 0)];
+
+            a.recycle();
+        }
     }
 
     @Override
@@ -83,6 +114,26 @@ public class CropImageView extends ImageViewTouchBase {
             hv.matrix.postTranslate(deltaX, deltaY);
             hv.invalidate();
         }
+    }
+
+    boolean shouldShowThirds() {
+        return showThirds;
+    }
+
+    int getHighlightColor() {
+        return highlightColor;
+    }
+
+    int getOutsideColor() {
+        return outsideColor;
+    }
+
+    HighlightView.HandleMode getHandleMode() {
+        return handleMode;
+    }
+
+    HighlightView.Shape getShape() {
+        return shape;
     }
 
     void setSaving(boolean saving) {
