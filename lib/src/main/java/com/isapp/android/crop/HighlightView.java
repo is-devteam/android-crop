@@ -29,6 +29,7 @@ import android.os.Build;
  * space to screen space.
  */
 class HighlightView {
+    static enum ModifyMode { None, Move, Grow }
 
     public static final int GROW_NONE        = (1 << 0);
     public static final int GROW_LEFT_EDGE   = (1 << 1);
@@ -39,10 +40,6 @@ class HighlightView {
 
     private static final float HANDLE_RADIUS_DP = 12f;
     private static final float OUTLINE_DP = 2f;
-
-    enum ModifyMode { None, Move, Grow }
-    enum HandleMode { Changing, Always, Never }
-    enum Shape { Square, Circle }
 
     RectF cropRect; // Image space
     Rect drawRect; // Screen space
@@ -55,13 +52,8 @@ class HighlightView {
 
     private CropImageView containerImageView; // View displaying image
 
-    private boolean showThirds;
-    private int highlightColor;
-    private int outsideColor;
-
     private ModifyMode modifyMode = ModifyMode.None;
-    private HandleMode handleMode = HandleMode.Changing;
-    private Shape shape = Shape.Square;
+
     private boolean maintainAspectRatio;
     private float initialAspectRatio;
     private float handleRadius;
@@ -70,13 +62,6 @@ class HighlightView {
 
     public HighlightView(CropImageView containerImageView) {
         this.containerImageView = containerImageView;
-
-        this.showThirds = containerImageView.shouldShowThirds();
-        this.highlightColor = containerImageView.getHighlightColor();
-        this.outsideColor = containerImageView.getOutsideColor();
-
-        this.handleMode = containerImageView.getHandleMode();
-        this.shape = containerImageView.getShape();
     }
 
     public void setup(Matrix m, Rect imageRect, RectF cropRect, boolean maintainAspectRatio) {
@@ -89,12 +74,12 @@ class HighlightView {
         initialAspectRatio = this.cropRect.width() / this.cropRect.height();
         drawRect = computeLayout();
 
-        outsidePaint.setColor(outsideColor);
+        outsidePaint.setColor(containerImageView.getOutsideColor());
         outlinePaint.setStyle(Paint.Style.STROKE);
         outlinePaint.setAntiAlias(true);
         outlineWidth = dpToPx(OUTLINE_DP);
 
-        handlePaint.setColor(highlightColor);
+        handlePaint.setColor(containerImageView.getHighlightColor());
         handlePaint.setStyle(Paint.Style.FILL);
         handlePaint.setAntiAlias(true);
         handleRadius = dpToPx(HANDLE_RADIUS_DP);
@@ -117,7 +102,7 @@ class HighlightView {
             Rect viewDrawingRect = new Rect();
             containerImageView.getDrawingRect(viewDrawingRect);
 
-            if(shape == Shape.Square) {
+            if(containerImageView.getShape() == CropImageView.Shape.Square) {
                 path.addRect(new RectF(drawRect), Path.Direction.CW);
             }
             else {
@@ -125,7 +110,7 @@ class HighlightView {
                 path.addCircle((float) (drawRect.left + drawRect.right) / 2, (float) (drawRect.top + drawRect.bottom) / 2, radius, Path.Direction.CW);
             }
 
-            outlinePaint.setColor(highlightColor);
+            outlinePaint.setColor(containerImageView.getHighlightColor());
 
             if (isClipPathSupported()) {
                 canvas.clipPath(path, Region.Op.DIFFERENCE);
@@ -137,12 +122,13 @@ class HighlightView {
             canvas.restore();
             canvas.drawPath(path, outlinePaint);
 
-            if (showThirds) {
+            if (containerImageView.shouldShowThirds()) {
                 drawThirds(canvas);
             }
 
-            if (handleMode == HandleMode.Always ||
-                    (handleMode == HandleMode.Changing && modifyMode == ModifyMode.Grow)) {
+            CropImageView.HandleMode handleMode = containerImageView.getHandleMode();
+            if (handleMode == CropImageView.HandleMode.Always ||
+                    (handleMode == CropImageView.HandleMode.Changing && modifyMode == ModifyMode.Grow)) {
                 drawHandles(canvas);
             }
         }

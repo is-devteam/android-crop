@@ -108,8 +108,8 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroy() {
+        super.onDestroy();
 
         if(cropController != null) {
             cropController.release();

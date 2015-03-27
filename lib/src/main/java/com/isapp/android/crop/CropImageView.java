@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CropImageView extends ImageViewTouchBase {
+    public static enum HandleMode { Changing, Always, HandleMode, Never }
+    public static enum Shape { Square, Circle }
+
     private static final int DEFAULT_HIGHLIGHT_COLOR = 0xFF33B5E5;
     private static final int DEFAULT_OUTSIDE_COLOR = 0x88252525;
 
@@ -21,8 +24,8 @@ public class CropImageView extends ImageViewTouchBase {
     private int highlightColor = 0xFF33B5E5;
     private int outsideColor = 0x88252525;
 
-    private HighlightView.HandleMode handleMode = HighlightView.HandleMode.Changing;
-    private HighlightView.Shape shape = HighlightView.Shape.Square;
+    private HandleMode handleMode = HandleMode.Changing;
+    private Shape shape = Shape.Square;
 
     private float lastX;
     private float lastY;
@@ -58,8 +61,8 @@ public class CropImageView extends ImageViewTouchBase {
             showThirds = a.getBoolean(R.styleable.CropImageView_crop_show_thirds, false);
             highlightColor = a.getColor(R.styleable.CropImageView_crop_highlight_color, DEFAULT_HIGHLIGHT_COLOR);
             outsideColor = a.getColor(R.styleable.CropImageView_crop_outside_color, DEFAULT_OUTSIDE_COLOR);
-            handleMode = HighlightView.HandleMode.values()[a.getInt(R.styleable.CropImageView_crop_show_handles, 0)];
-            shape = HighlightView.Shape.values()[a.getInt(R.styleable.CropImageView_crop_shape, 0)];
+            handleMode = HandleMode.values()[a.getInt(R.styleable.CropImageView_crop_show_handles, 0)];
+            shape = Shape.values()[a.getInt(R.styleable.CropImageView_crop_shape, 0)];
 
             a.recycle();
         }
@@ -120,20 +123,55 @@ public class CropImageView extends ImageViewTouchBase {
         return showThirds;
     }
 
+    public void setShowThirds(boolean showThirds) {
+        this.showThirds = showThirds;
+        for(HighlightView hv : highlightViews) {
+            hv.invalidate();
+        }
+    }
+
     int getHighlightColor() {
         return highlightColor;
+    }
+
+    public void setHighlightColor(int highlightColor) {
+        this.highlightColor = highlightColor;
+        for(HighlightView hv : highlightViews) {
+          hv.invalidate();
+        }
     }
 
     int getOutsideColor() {
         return outsideColor;
     }
 
-    HighlightView.HandleMode getHandleMode() {
+    public void setOutsideColor(int outsideColor) {
+        this.outsideColor = outsideColor;
+        for(HighlightView hv : highlightViews) {
+          hv.invalidate();
+        }
+    }
+
+    HandleMode getHandleMode() {
         return handleMode;
     }
 
-    HighlightView.Shape getShape() {
+    public void setHandleMode(HandleMode handleMode) {
+        this.handleMode = handleMode;
+        for(HighlightView hv : highlightViews) {
+          hv.invalidate();
+        }
+    }
+
+    Shape getShape() {
         return shape;
+    }
+
+    public void setShape(Shape shape) {
+        this.shape = shape;
+        for(HighlightView hv : highlightViews) {
+          hv.invalidate();
+        }
     }
 
     void setSaving(boolean saving) {
