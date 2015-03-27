@@ -136,7 +136,7 @@ public class CropImageView extends ImageViewTouchBase {
         }
     }
 
-    boolean shouldShowThirds() {
+    public boolean shouldShowThirds() {
         return showThirds;
     }
 
@@ -147,7 +147,7 @@ public class CropImageView extends ImageViewTouchBase {
         }
     }
 
-    int getHighlightColor() {
+    public int getHighlightColor() {
         return highlightColor;
     }
 
@@ -158,7 +158,7 @@ public class CropImageView extends ImageViewTouchBase {
         }
     }
 
-    int getOutsideColor() {
+    public int getOutsideColor() {
         return outsideColor;
     }
 
@@ -169,7 +169,7 @@ public class CropImageView extends ImageViewTouchBase {
         }
     }
 
-    @HandleMode int getHandleMode() {
+    @HandleMode public int getHandleMode() {
         return handleMode;
     }
 
@@ -180,7 +180,7 @@ public class CropImageView extends ImageViewTouchBase {
         }
     }
 
-    @Shape int getShape() {
+    @Shape public int getShape() {
         return shape;
     }
 
