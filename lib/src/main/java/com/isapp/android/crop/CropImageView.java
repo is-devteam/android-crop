@@ -4,15 +4,30 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.support.annotation.IntDef;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CropImageView extends ImageViewTouchBase {
-    public static enum HandleMode { Changing, Always, HandleMode, Never }
-    public static enum Shape { Square, Circle }
+    @IntDef({HANDLE_MODE_NEVER, HANDLE_MODE_CHANGING, HANDLE_MODE_ALWAYS})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface HandleMode{}
+
+    @IntDef({SHAPE_SQUARE, SHAPE_CIRCLE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Shape{}
+
+    public static final int HANDLE_MODE_NEVER = 0;
+    public static final int HANDLE_MODE_CHANGING = 1;
+    public static final int HANDLE_MODE_ALWAYS = 2;
+
+    public static final int SHAPE_SQUARE = 0;
+    public static final int SHAPE_CIRCLE = 1;
 
     private static final int DEFAULT_HIGHLIGHT_COLOR = 0xFF33B5E5;
     private static final int DEFAULT_OUTSIDE_COLOR = 0x88252525;
@@ -24,8 +39,8 @@ public class CropImageView extends ImageViewTouchBase {
     private int highlightColor = 0xFF33B5E5;
     private int outsideColor = 0x88252525;
 
-    private HandleMode handleMode = HandleMode.Changing;
-    private Shape shape = Shape.Square;
+    @HandleMode private int handleMode = HANDLE_MODE_CHANGING;
+    @Shape private int shape = SHAPE_SQUARE;
 
     private float lastX;
     private float lastY;
@@ -61,8 +76,10 @@ public class CropImageView extends ImageViewTouchBase {
             showThirds = a.getBoolean(R.styleable.CropImageView_crop_show_thirds, false);
             highlightColor = a.getColor(R.styleable.CropImageView_crop_highlight_color, DEFAULT_HIGHLIGHT_COLOR);
             outsideColor = a.getColor(R.styleable.CropImageView_crop_outside_color, DEFAULT_OUTSIDE_COLOR);
-            handleMode = HandleMode.values()[a.getInt(R.styleable.CropImageView_crop_show_handles, 0)];
-            shape = Shape.values()[a.getInt(R.styleable.CropImageView_crop_shape, 0)];
+            //noinspection ResourceType
+            handleMode = a.getInt(R.styleable.CropImageView_crop_show_handles, HANDLE_MODE_CHANGING);
+            //noinspection ResourceType
+            shape = a.getInt(R.styleable.CropImageView_crop_shape, SHAPE_SQUARE);
 
             a.recycle();
         }
@@ -152,22 +169,22 @@ public class CropImageView extends ImageViewTouchBase {
         }
     }
 
-    HandleMode getHandleMode() {
+    @HandleMode int getHandleMode() {
         return handleMode;
     }
 
-    public void setHandleMode(HandleMode handleMode) {
+    public void setHandleMode(@HandleMode int handleMode) {
         this.handleMode = handleMode;
         for(HighlightView hv : highlightViews) {
           hv.invalidate();
         }
     }
 
-    Shape getShape() {
+    @Shape int getShape() {
         return shape;
     }
 
-    public void setShape(Shape shape) {
+    public void setShape(@Shape int shape) {
         this.shape = shape;
         for(HighlightView hv : highlightViews) {
           hv.invalidate();
@@ -198,8 +215,8 @@ public class CropImageView extends ImageViewTouchBase {
                     lastX = event.getX();
                     lastY = event.getY();
                     motionHighlightView.setMode((edge == HighlightView.MOVE)
-                            ? HighlightView.ModifyMode.Move
-                            : HighlightView.ModifyMode.Grow);
+                            ? HighlightView.MODIFY_MODE_MOVE
+                            : HighlightView.MODIFY_MODE_GROW);
                     break;
                 }
             }
@@ -207,7 +224,7 @@ public class CropImageView extends ImageViewTouchBase {
         case MotionEvent.ACTION_UP:
             if (motionHighlightView != null) {
                 centerBasedOnHighlightView(motionHighlightView);
-                motionHighlightView.setMode(HighlightView.ModifyMode.None);
+                motionHighlightView.setMode(HighlightView.MODIFY_MODE_NONE);
             }
             motionHighlightView = null;
             break;

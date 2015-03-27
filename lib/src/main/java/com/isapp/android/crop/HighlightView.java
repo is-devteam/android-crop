@@ -19,6 +19,10 @@ package com.isapp.android.crop;
 import android.annotation.SuppressLint;
 import android.graphics.*;
 import android.os.Build;
+import android.support.annotation.IntDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /*
  * Modified from version in AOSP.
@@ -29,7 +33,13 @@ import android.os.Build;
  * space to screen space.
  */
 class HighlightView {
-    static enum ModifyMode { None, Move, Grow }
+    @IntDef({MODIFY_MODE_NONE, MODIFY_MODE_MOVE, MODIFY_MODE_GROW})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ModifyMode{}
+
+    public static final int MODIFY_MODE_NONE = 0;
+    public static final int MODIFY_MODE_MOVE = 1;
+    public static final int MODIFY_MODE_GROW = 2;
 
     public static final int GROW_NONE        = (1 << 0);
     public static final int GROW_LEFT_EDGE   = (1 << 1);
@@ -52,7 +62,7 @@ class HighlightView {
 
     private CropImageView containerImageView; // View displaying image
 
-    private ModifyMode modifyMode = ModifyMode.None;
+    @ModifyMode private int modifyMode = MODIFY_MODE_NONE;
 
     private boolean maintainAspectRatio;
     private float initialAspectRatio;
@@ -84,7 +94,7 @@ class HighlightView {
         handlePaint.setAntiAlias(true);
         handleRadius = dpToPx(HANDLE_RADIUS_DP);
 
-        modifyMode = ModifyMode.None;
+        modifyMode = MODIFY_MODE_NONE;
     }
 
     private float dpToPx(float dp) {
@@ -102,7 +112,7 @@ class HighlightView {
             Rect viewDrawingRect = new Rect();
             containerImageView.getDrawingRect(viewDrawingRect);
 
-            if(containerImageView.getShape() == CropImageView.Shape.Square) {
+            if(containerImageView.getShape() == CropImageView.SHAPE_SQUARE) {
                 path.addRect(new RectF(drawRect), Path.Direction.CW);
             }
             else {
@@ -126,9 +136,9 @@ class HighlightView {
                 drawThirds(canvas);
             }
 
-            CropImageView.HandleMode handleMode = containerImageView.getHandleMode();
-            if (handleMode == CropImageView.HandleMode.Always ||
-                    (handleMode == CropImageView.HandleMode.Changing && modifyMode == ModifyMode.Grow)) {
+            int handleMode = containerImageView.getHandleMode();
+            if (handleMode == CropImageView.HANDLE_MODE_ALWAYS ||
+                    (handleMode == CropImageView.HANDLE_MODE_CHANGING && modifyMode == MODIFY_MODE_GROW)) {
                 drawHandles(canvas);
             }
         }
@@ -178,7 +188,7 @@ class HighlightView {
                 drawRect.right, drawRect.top + yThird * 2, outlinePaint);
     }
 
-    public void setMode(ModifyMode mode) {
+    public void setMode(@ModifyMode int mode) {
         if (mode != modifyMode) {
             modifyMode = mode;
             containerImageView.invalidate();
