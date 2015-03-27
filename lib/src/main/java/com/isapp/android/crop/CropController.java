@@ -31,6 +31,7 @@ public class CropController {
     private HighlightView cropView;
 
     private AtomicBoolean saving = new AtomicBoolean(false);
+    private AtomicBoolean released = new AtomicBoolean(false);
 
     private boolean error = false;
 
@@ -231,6 +232,10 @@ public class CropController {
      * Releases expensive resources. Do not use the object after calling this.
      */
     public void release() {
+        if(released.getAndSet(true)) {
+            return;
+        }
+
         CropImageView imageView = builder.imageView.get();
         if(imageView != null) {
             clearImageView(imageView);
