@@ -35,18 +35,18 @@ import java.lang.annotation.RetentionPolicy;
 class HighlightView {
     @IntDef({MODIFY_MODE_NONE, MODIFY_MODE_MOVE, MODIFY_MODE_GROW})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface ModifyMode{}
+    @interface ModifyMode{}
 
-    public static final int MODIFY_MODE_NONE = 0;
-    public static final int MODIFY_MODE_MOVE = 1;
-    public static final int MODIFY_MODE_GROW = 2;
+    static final int MODIFY_MODE_NONE = 0;
+    static final int MODIFY_MODE_MOVE = 1;
+    static final int MODIFY_MODE_GROW = 2;
 
-    public static final int GROW_NONE        = (1 << 0);
-    public static final int GROW_LEFT_EDGE   = (1 << 1);
-    public static final int GROW_RIGHT_EDGE  = (1 << 2);
-    public static final int GROW_TOP_EDGE    = (1 << 3);
-    public static final int GROW_BOTTOM_EDGE = (1 << 4);
-    public static final int MOVE             = (1 << 5);
+    static final int GROW_NONE        = (1 << 0);
+    static final int GROW_LEFT_EDGE   = (1 << 1);
+    static final int GROW_RIGHT_EDGE  = (1 << 2);
+    static final int GROW_TOP_EDGE    = (1 << 3);
+    static final int GROW_BOTTOM_EDGE = (1 << 4);
+    static final int MOVE             = (1 << 5);
 
     private static final float HANDLE_RADIUS_DP = 12f;
     private static final float OUTLINE_DP = 2f;
